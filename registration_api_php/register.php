@@ -9,11 +9,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'User.php';
 
 	if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['phone']) && isset($_POST['password']) && isset($_POST['confirmPassword']) && isset($_FILES['file'])){
-		$name = $_POST['name'];
-		$email = $_POST['email'];
-		$phone = $_POST['phone'];
-		$password = $_POST['password'];
-		$confirmPassword = $_POST['confirmPassword'];
+		
+	
+		// Sanitize inputs
+        $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+        $phone = filter_var($_POST['phone'], FILTER_SANITIZE_STRING);
+        $password = filter_var($_POST['password'], FILTER_SANITIZE_STRING);
+        $confirmPassword = filter_var($_POST['confirmPassword'], FILTER_SANITIZE_STRING);
+		
 		$file = $_FILES['file'];
 
 		// Validate input
