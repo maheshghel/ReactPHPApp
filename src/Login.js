@@ -1,7 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
+
+  useEffect(() => {
+    // Check if the user is authenticated
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+      window.location.href = '/dashboard';
+    }
+  }, []);
+
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
@@ -39,26 +49,39 @@ const Login = () => {
   const handleLogin = async () => {
     if (!validateForm()) {
         // Form validation failed
+        console.log('Validation Failed');
         return;
       }
 
-    try {
-      const response = await fetch('http://localhost:80/registration_api/login.php', {
-        method: 'POST',
-        body: JSON.stringify(loginData),
-      });
+    // try {
 
-      if (response.ok) {
-        // Successful login, redirect or perform other actions
-        console.log('Login successful');
-        window.location.href = '/dashboard';
-      } else {
-        // Failed login
-        console.error('Login failed');
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
+      fetch('http://localhost:80/registration_api/login.php', {
+  method: 'POST',
+  body: JSON.stringify(loginData),
+})
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+    return response.json();
+  })
+  .then(data => {
+    if(!data.success === false){
+      // Handle the JSON response data
+      localStorage.setItem('userToken', data.token);
+      window.location.href = '/dashboard';
+    }else{
+      alert(data.message);
+      console.error('Fetch error:', data.message);
+    }
+    
+
+  })
+  .catch(error => {
+    // Handle errors during the fetch operation
+    console.error('Fetch error:', error);
+  });
+
   };
 
   return (
@@ -109,6 +132,9 @@ const Login = () => {
                   Login
                 </button>
               </form>
+              <div className="mt-3">
+                <p>Don't have an account? <Link to="/register">Register here</Link></p>
+              </div>
             </div>
           </div>
         </div>
